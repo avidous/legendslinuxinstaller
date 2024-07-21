@@ -64,7 +64,7 @@ install_prompt() {
     elif [[ -z "$overwrite" ]]; then
         echo "Skipping the overwrite process."&
     elif [[ "$overwrite" == "no" ]]; then
-        echo "Please overwrite the directory."
+        echo "Please overwrite the directory or select a new one."
         install_prompt        
     else
         echo "ERR 4: Invalid input. Please type 'yes' to overwrite or 'no' to exit."
@@ -87,6 +87,7 @@ install_prompt
 dep_check() {
     # Check Distro
     if [[ -f /etc/os-release ]]; then
+        # shellcheck disable=SC1091
         . /etc/os-release
         OS=$NAME
         echo "Detected OS: $OS"
@@ -220,12 +221,12 @@ setup_ws232dll() {
     rm -f "$ml_install_dir/wine/drive_c/windows/system32/ws2_32.dll"
     rm -f "$ml_install_dir/wine/drive_c/windows/system32/ws2help.dll"
     # Download the patched ws2_32.dll
-    cd "$ml_install_dir/wine/drive_c/windows/system32"
+    cd "$ml_install_dir/wine/drive_c/windows/system32" || exit
     echo "Downloading the patched ws2_32.dll."
     tmp_dir=$(mktemp -d)
     cd "$tmp_dir" || exit
-    wget -N https://raw.githubusercontent.com/avidous/legendslinuxinstaller/main/ws2dlls/ws2_32.dll
-    wget -N https://raw.githubusercontent.com/avidous/legendslinuxinstaller/main/ws2dlls/ws2help.dll
+    wget -q -N https://raw.githubusercontent.com/avidous/legendslinuxinstaller/main/ws2dlls/ws2_32.dll
+    wget -q -N https://raw.githubusercontent.com/avidous/legendslinuxinstaller/main/ws2dlls/ws2help.dll
     mv -f ws2_32.dll "$ml_install_dir/wine/drive_c/windows/system32/"
     mv -f ws2help.dll "$ml_install_dir/wine/drive_c/windows/system32/"
     cd - || exit
