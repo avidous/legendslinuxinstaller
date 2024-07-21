@@ -151,7 +151,7 @@ setup_installation() {
         eval "cp $ml_wineskin $install_dir"
         echo "Copied the MapleLegends Wineskin to the temporary install directory."
     else
-        echo "ERR 2: Unable to create the tmp environment. Ensure the script has access to /tmp/."
+        echo "ERR 2: Unable to create the tmp environment. Sometimes this happens because your /tmp/ folder is too full. Please remove any ml_installer.XXXXXXXX folders in /tmp/ and try again."
         exit 1
     fi
 
@@ -196,7 +196,8 @@ move_files_and_cleanup
 # Function to set up Wine and download the patched ws2_32.dll
 setup_wine() {
     # Warn the user that we're going to set up wine.
-    echo "Setting up Wine... We're downloading corefonts so this might take a while . . ."
+    echo "Setting up Wine... We're downloading corefonts so this might take a while..."
+    echo "Please be patient. DO NOT CLOSE THE SCRIPT."
 
     # Set the default Windows version to Windows 98
     mkdir "$ml_install_dir/wine"
@@ -264,16 +265,41 @@ chmod +x "$ml_install_dir/startlegends.sh"
 # Call the function to set up the start script
 setup_start_script
 
+# Function to git clone avidous/legendslinuxinstaller/blob/main/iniconfigurator.sh to the install directory.
+run_ini_configurator() {
+    echo "Downloading iniconfigurator.sh to the installation directory."
+    cd "$ml_install_dir" || exit
+    wget -q https://raw.githubusercontent.com/avidous/legendslinuxinstaller/main/iniconfigurator.sh
+    chmod +x iniconfigurator.sh
+    echo "Downloaded iniconfigurator.sh to the installation directory."
+    read -r -p "Would you like to configure the MapleLegends settings now? (yes/no): " configure_now
+    case $configure_now in
+        "yes")
+            echo "Configuring MapleLegends..."
+            ./iniconfigurator.sh
+            ;;
+        "no")
+            echo "MapleLegends has been installed successfully. You can configure it later using the iniconfigurator.sh script in the installation directory."
+            ;;
+        *)
+            echo "Invalid input. Please type 'yes' to configure MapleLegends now or 'no' to exit."
+            ;;
+    esac
+}
+# Call the function to run the iniconfigurator
+run_ini_configurator
 # Function to ask user if they'd like to run the game now
 run_game_prompt() {
     read -r -p "Would you like to run MapleLegends now? (yes/no): " run_now
     case $run_now in
-        yes)
+        "yes")
             echo "Running MapleLegends..."
             cd "$ml_install_dir" || exit
+            sleep 3
+            echo "Happy Mapling! Have a great time!"
             ./startlegends.sh
             ;;
-        no)
+        "no")
             echo "MapleLegends has been installed successfully. You can run it later using the startlegends.sh script in the installation directory."
             ;;
         *)
