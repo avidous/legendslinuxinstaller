@@ -178,11 +178,12 @@ move_files_and_cleanup
 # Function to set up Wine and download the patched ws2_32.dll
 setup_wine() {
     # Warn the user that we're going to set up wine.
-    echo "Setting up Wine..."
-    mkdir "$ml_install_dir/wine"
+    echo "Setting up Wine... We're downloading corefonts so this might take a while . . ."
 
     # Set the default Windows version to Windows 98
-    WINEPREFIX="$ml_install_dir/wine" WINEARCH="win32" winetricks win98
+    mkdir "$ml_install_dir/wine"
+    WINEPREFIX="$ml_install_dir/wine" WINEARCH="win32" winetricks win98 corefonts > /dev/null 2>&1
+
 
     # Check the Wine Install Directory
     if [[ -d "$ml_install_dir/wine" ]]; then
@@ -223,3 +224,24 @@ setup_ws232dll() {
 # Call the function to set up the patched ws2_32.dll
 setup_ws232dll
 
+#Set up the start script
+setup_start_script() {
+    echo "Setting up the start script."
+# Create the start script
+touch "$ml_install_dir/startlegends.sh"
+cat <<EOF > "$ml_install_dir/startlegends.sh"
+#!/bin/bash
+
+# Set the Wine prefix
+export WINEPREFIX="$ml_install_dir/wine"
+export WINEARCH="win32"
+export WINEDLLOVERRIDES="mscoree,mshtml="
+
+# Run MapleLegends.exe using Wine
+cd "$ml_install_dir/MapleLegends/" || exit
+wine MapleLegends.exe > /dev/null 2>&1 &
+EOF
+chmod +x "$ml_install_dir/startlegends.sh"
+}
+# Call the function to set up the start script
+setup_start_script
