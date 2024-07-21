@@ -83,44 +83,61 @@ install_prompt() {
 # Call the install_prompt function
 install_prompt
 
-# Check Distro
-#if [[ -f /etc/os-release ]]; then
-#    . /etc/os-release
-#    OS=$NAME
-#else
-#    echo "Not able to determine OS"
-#    exit 1
-#fi
+# Function to check dependencies and install them if needed
+dep_check() {
+    # Check Distro
+    if [[ -f /etc/os-release ]]; then
+        . /etc/os-release
+        OS=$NAME
+        echo "Detected OS: $OS"
+    else
+        echo "Not able to determine OS"
+        exit 1
+    fi
+
+# Function to create a fun animation
+msg_dep_1() {
+    echo "Checking for dependencies . . ."
+    sleep 5
+    echo "You'll need the following dependencies: bash, p7zip, wget, wine, winetricks, and corefonts."
+}
+
+# Call the animate function
+msg_dep_1
+
+# Function to animate the dependency check
+msg_dep_2() {
+    echo "Please enter your password if prompted to install from your local package manager."
+    sleep 5
+    echo "Installing dependencies now . . ."
+}
+
+# Call the animate_dep_2 function
+msg_dep_2
 
 # Grab Dependencies
-# To-Do: Write out the list of dependencies below and write the proper dependency check for each distro.
+    case $OS in
+    "Ubuntu"|"Linux Mint")
+        sudo apt-get update
+        sudo apt-get install -y bash p7zip-full wget wine winetricks
+        ;;
+    "Fedora")
+        sudo dnf install -y bash p7zip p7zip-plugins wget wine winetricks
+        ;;
+    "Manjaro Linux"|"Arch Linux"|"steamos")  # Include "steamos" here
+        sudo pacman -Syu --noconfirm bash p7zip wget wine winetricks
+        ;;
+    "Gentoo")
+        sudo emerge --update --newuse app-arch/p7zip net-misc/wget app-emulation/wine app-emulation/winetricks
+        ;;
+    *)
+        echo "This Linux distribution ($OS) is not specifically checked for in this script. Please manually install: bash, p7zip, wget, wine, winetricks, and corefonts."
+        ;;
+    esac
+}
 
-#case $OS in
-#"Ubuntu")
-#    echo "This is Ubuntu."
-#    ;;
-#"Fedora")
-#    echo "This is Fedora."
-#    ;;
-#"Manjaro Linux")
-#    echo "This is Manjaro Linux."
-#    ;;
-#"Arch Linux")
-#    echo "This is Arch Linux."
-#    ;;
-#"Gentoo")
-#    echo "This is Gentoo."
-#    ;;
-#"steamos")
-#    echo "This is SteamOS."
-#    ;;
-#"Linux Mint")
-#    echo "This is Linux Mint."
-#    ;;
-#*)
-#    echo "This Linux distribution ($OS) is not specifically checked for in this script."
-#    ;;
-#esac
+# Call the dep_check function
+dep_check
 
 # Function to create temporary install directory, copy wineskin, extract Wineskin, and detect MapleLegends Program Files folder
 setup_installation() {
@@ -246,19 +263,25 @@ chmod +x "$ml_install_dir/startlegends.sh"
 # Call the function to set up the start script
 setup_start_script
 
-# Ask user if they'd like to run the game now
-read -r -p "Would you like to run MapleLegends now? (yes/no): " run_now
-case $run_now in
-    yes)
-        echo "Running MapleLegends..."
-        cd "$ml_install_dir" || exit
-        ./startlegends.sh
-        ;;
-    no)
-        echo "MapleLegends has been installed successfully. You can run it later using the startlegends.sh script in the installation directory."
-        ;;
-    *)
-        echo "Invalid input. Please type 'yes' to run MapleLegends now or 'no' to exit."
-        ;;
-esac
+# Function to ask user if they'd like to run the game now
+run_game_prompt() {
+    read -r -p "Would you like to run MapleLegends now? (yes/no): " run_now
+    case $run_now in
+        yes)
+            echo "Running MapleLegends..."
+            cd "$ml_install_dir" || exit
+            ./startlegends.sh
+            ;;
+        no)
+            echo "MapleLegends has been installed successfully. You can run it later using the startlegends.sh script in the installation directory."
+            ;;
+        *)
+            echo "Invalid input. Please type 'yes' to run MapleLegends now or 'no' to exit."
+            run_game_prompt
+            ;;
+    esac
+}
+
+# Call the function to ask user if they'd like to run the game now
+run_game_prompt
 exit 0
