@@ -26,6 +26,14 @@ This installer is a bash script that automatically extracts the ML Wineskin, dow
 
 
 ## Installation
+### curl
+You can the following script in terminal to download and run the install script.
+```
+curl -o legendsinstaller.sh https://raw.githubusercontent.com/avidous/legendslinuxinstaller/main/legendsinstaller.sh &&
+chmod +x legendsinstaller.sh &&
+./legendsinstaller.sh
+```
+
 ### Git Clone
 1. Ensure that `git` is installed on your system.
 2. Navigate to any directory to download the install script.
