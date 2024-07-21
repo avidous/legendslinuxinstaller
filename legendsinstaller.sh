@@ -245,3 +245,20 @@ chmod +x "$ml_install_dir/startlegends.sh"
 }
 # Call the function to set up the start script
 setup_start_script
+
+# Ask user if they'd like to run the game now
+read -r -p "Would you like to run MapleLegends now? (yes/no): " run_now
+case $run_now in
+    yes)
+        echo "Running MapleLegends..."
+        cd "$ml_install_dir" || exit
+        ./startlegends.sh
+        ;;
+    no)
+        echo "MapleLegends has been installed successfully. You can run it later using the startlegends.sh script in the installation directory."
+        ;;
+    *)
+        echo "Invalid input. Please type 'yes' to run MapleLegends now or 'no' to exit."
+        ;;
+esac
+exit 0
